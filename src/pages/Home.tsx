@@ -2,7 +2,8 @@ import './Home.css';
 import { fetchAllFilms, fetchFilms } from '../services/apiService';
 import { Component } from 'react';
 import ErrorBoundary from '../components/ErrorBoundary';
-import Search from '../components/Search';
+import TopSection from '../components/TopSection';
+import BottomSection from '../components/BottomSection';
 
 interface Film {
   title: string;
@@ -124,25 +125,16 @@ class Home extends Component<HomeProps, HomeState> {
         fallback={<h1>{errorMessage || 'Something went wrong.'}</h1>}
       >
         <div className="home-container">
-          <div className="section top-section">
-            <Search
-              savedSearchTerm={savedSearchTerm}
-              setSavedSearchTerm={this.setSavedSearchTerm}
-            />
-          </div>
-          <div className="section bottom-section">
-            <h2>Search Results</h2>
-            {isLoading ? (
-              <div>Loading...</div>
-            ) : errorMessage ? (
-              <div>{errorMessage}</div>
-            ) : (
-              this.renderSearchResults()
-            )}
-            <button onClick={this.handleThrowError} type="button">
-              Throw Error
-            </button>
-          </div>
+          <TopSection
+            savedSearchTerm={savedSearchTerm}
+            setSavedSearchTerm={this.setSavedSearchTerm}
+          />
+          <BottomSection
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            renderSearchResults={this.renderSearchResults}
+            handleThrowError={this.handleThrowError}
+          />
         </div>
       </ErrorBoundary>
     );
