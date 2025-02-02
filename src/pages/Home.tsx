@@ -9,6 +9,8 @@ interface Film {
   director: string;
 }
 
+interface HomeProps {}
+
 interface HomeState {
   savedSearchTerm: string;
   searchResults: Film[];
@@ -16,12 +18,12 @@ interface HomeState {
   errorMessage: string;
 }
 
-class Home extends Component<Record<string, never>, HomeState> {
+class Home extends Component<HomeProps, HomeState> {
   static handleThrowError = () => {
     throw new Error('Test error thrown from Home component!');
   };
 
-  constructor(props: Record<string, never>) {
+  constructor(props: HomeProps) {
     super(props);
     this.state = {
       savedSearchTerm: '',
@@ -44,7 +46,7 @@ class Home extends Component<Record<string, never>, HomeState> {
     }
   }
 
-  shouldComponentUpdate(nextState: Record<string, never>) {
+  shouldComponentUpdate(nextState: HomeState) {
     const { savedSearchTerm, searchResults } = this.state;
     return (
       savedSearchTerm !== nextState.savedSearchTerm ||
