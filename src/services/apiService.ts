@@ -18,14 +18,19 @@ export const fetchFilms = async (searchTerm = ''): Promise<Film[]> => {
 
   try {
     const response = await fetch(url);
+
     if (!response.ok) {
-      throw new Error('Failed to fetch films');
+      const errorMessage = await response.text();
+      throw new Error(
+        `Error ${response.status}: ${errorMessage || 'Failed to fetch films'}`
+      );
     }
+
     const data: ApiResponse<Film> = await response.json();
     return data.results;
   } catch (error) {
     console.error('Error fetching films:', error);
-    return [] as Film[];
+    return Promise.reject(error);
   }
 };
 
@@ -34,13 +39,18 @@ export const fetchAllFilms = async (): Promise<Film[]> => {
 
   try {
     const response = await fetch(url);
+
     if (!response.ok) {
-      throw new Error('Failed to fetch all films');
+      const errorMessage = await response.text();
+      throw new Error(
+        `Error ${response.status}: ${errorMessage || 'Failed to fetch all films'}`
+      );
     }
+
     const data: ApiResponse<Film> = await response.json();
     return data.results;
   } catch (error) {
     console.error('Error fetching all films:', error);
-    return [] as Film[];
+    return Promise.reject(error);
   }
 };

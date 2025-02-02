@@ -1,6 +1,7 @@
 import './Home.css';
 import { fetchAllFilms, fetchFilms } from '../services/apiService';
 import { Component } from 'react';
+import ErrorBoundary from '../components/ErrorBoundary';
 import Search from '../components/Search';
 
 interface Film {
@@ -12,15 +13,21 @@ interface HomeState {
   savedSearchTerm: string;
   searchResults: Film[];
   isLoading: boolean;
+  errorMessage: string;
 }
 
 class Home extends Component<Record<string, never>, HomeState> {
+  static handleThrowError = () => {
+    throw new Error('Test error thrown from Home component!');
+  };
+
   constructor(props: Record<string, never>) {
     super(props);
     this.state = {
       savedSearchTerm: '',
       searchResults: [],
       isLoading: false,
+      errorMessage: '',
     };
   }
 
@@ -60,33 +67,30 @@ class Home extends Component<Record<string, never>, HomeState> {
 
   fetchAllItems = async () => {
     try {
-      this.setState({ isLoading: true });
+      this.setState({ isLoading: true, errorMessage: '' });
       const films = await fetchAllFilms();
       this.setState({ searchResults: films });
     } catch (error) {
-      console.error('Error fetching all films:', error);
+      const message = (error as Error).message || 'An unknown error occurred';
+      this.setState({ errorMessage: message });
     } finally {
       this.setState({ isLoading: false });
     }
   };
 
-  performSearch = () => {
+  performSearch = async () => {
     const { savedSearchTerm } = this.state;
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, errorMessage: '' });
 
-    fetchFilms(savedSearchTerm)
-      .then((films) => {
-        this.setState({ searchResults: films });
-      })
-      .catch((error) => {
-        console.error(
-          `Error fetching films with search term '${savedSearchTerm}':`,
-          error
-        );
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
+    try {
+      const films = await fetchFilms(savedSearchTerm);
+      this.setState({ searchResults: films });
+    } catch (error) {
+      const message = (error as Error).message || 'An unknown error occurred';
+      this.setState({ errorMessage: message });
+    } finally {
+      this.setState({ isLoading: false });
+    }
   };
 
   renderSearchResults = () => {
@@ -103,22 +107,40 @@ class Home extends Component<Record<string, never>, HomeState> {
     );
   };
 
+  handleThrowError = () => {
+    this.setState({ errorMessage: 'An intentional error has occurred!' });
+    throw new Error('Test error thrown from Home component!');
+  };
+
   render() {
-    const { savedSearchTerm, isLoading } = this.state;
+    const { savedSearchTerm, isLoading, errorMessage } = this.state;
 
     return (
-      <div>
-        <div className="section top-section">
-          <Search
-            savedSearchTerm={savedSearchTerm}
-            setSavedSearchTerm={this.setSavedSearchTerm}
-          />
+      <ErrorBoundary
+        fallback={<h1>{errorMessage || 'Something went wrong.'}</h1>}
+      >
+        <div className="home-container">
+          <div className="section top-section">
+            <Search
+              savedSearchTerm={savedSearchTerm}
+              setSavedSearchTerm={this.setSavedSearchTerm}
+            />
+          </div>
+          <div className="section bottom-section">
+            <h2>Search Results</h2>
+            {isLoading ? (
+              <div>Loading...</div>
+            ) : errorMessage ? (
+              <div>{errorMessage}</div>
+            ) : (
+              this.renderSearchResults()
+            )}
+            <button onClick={this.handleThrowError} type="button">
+              Throw Error
+            </button>
+          </div>
         </div>
-        <div className="section bottom-section">
-          <h2>Search Results</h2>
-          {isLoading ? <div>Loading...</div> : this.renderSearchResults()}
-        </div>
-      </div>
+      </ErrorBoundary>
     );
   }
 }
