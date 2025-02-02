@@ -4,11 +4,8 @@ import { Component } from 'react';
 import ErrorBoundary from '../components/ErrorBoundary';
 import TopSection from '../components/TopSection';
 import BottomSection from '../components/BottomSection';
-
-interface Film {
-  title: string;
-  director: string;
-}
+import { Film } from '../types';
+import SearchResult from '../components/SearchResult';
 
 interface HomeProps {}
 
@@ -103,10 +100,7 @@ class Home extends Component<HomeProps, HomeState> {
     return (
       <div>
         {searchResults.map((film) => (
-          <div key={film.title}>
-            <h3>{film.title}</h3>
-            <p>Director: {film.director}</p>
-          </div>
+          <SearchResult key={film.title} film={film} />
         ))}
       </div>
     );
