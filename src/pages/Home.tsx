@@ -11,6 +11,7 @@ interface Film {
 interface HomeState {
   savedSearchTerm: string;
   searchResults: Film[];
+  isLoading: boolean;
 }
 
 class Home extends Component<Record<string, never>, HomeState> {
@@ -19,6 +20,7 @@ class Home extends Component<Record<string, never>, HomeState> {
     this.state = {
       savedSearchTerm: '',
       searchResults: [],
+      isLoading: false,
     };
   }
 
@@ -27,7 +29,7 @@ class Home extends Component<Record<string, never>, HomeState> {
       const storedTerm = localStorage.getItem('savedSearchTerm');
       if (storedTerm) {
         this.setState({ savedSearchTerm: storedTerm }, () => {
-          this.performSearch();
+          this.fetchAllItems();
         });
       } else {
         this.fetchAllItems();
@@ -58,15 +60,19 @@ class Home extends Component<Record<string, never>, HomeState> {
 
   fetchAllItems = async () => {
     try {
+      this.setState({ isLoading: true });
       const films = await fetchAllFilms();
       this.setState({ searchResults: films });
     } catch (error) {
       console.error('Error fetching all films:', error);
+    } finally {
+      this.setState({ isLoading: false });
     }
   };
 
   performSearch = () => {
     const { savedSearchTerm } = this.state;
+    this.setState({ isLoading: true });
 
     fetchFilms(savedSearchTerm)
       .then((films) => {
@@ -77,6 +83,9 @@ class Home extends Component<Record<string, never>, HomeState> {
           `Error fetching films with search term '${savedSearchTerm}':`,
           error
         );
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
       });
   };
 
@@ -95,7 +104,7 @@ class Home extends Component<Record<string, never>, HomeState> {
   };
 
   render() {
-    const { savedSearchTerm } = this.state;
+    const { savedSearchTerm, isLoading } = this.state;
 
     return (
       <div>
@@ -107,7 +116,7 @@ class Home extends Component<Record<string, never>, HomeState> {
         </div>
         <div className="section bottom-section">
           <h2>Search Results</h2>
-          {this.renderSearchResults()}
+          {isLoading ? <div>Loading...</div> : this.renderSearchResults()}
         </div>
       </div>
     );
