@@ -68,6 +68,7 @@ class Home extends Component<Record<string, never>, HomeState> {
   fetchAllItems = async () => {
     try {
       this.setState({ isLoading: true, errorMessage: '' });
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       const films = await fetchAllFilms();
       this.setState({ searchResults: films });
     } catch (error) {
@@ -84,6 +85,7 @@ class Home extends Component<Record<string, never>, HomeState> {
 
     try {
       const films = await fetchFilms(savedSearchTerm);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       this.setState({ searchResults: films });
     } catch (error) {
       const message = (error as Error).message || 'An unknown error occurred';
