@@ -1,0 +1,13 @@
+.section {
+  flex: 1;
+  border: 1px solid #ccc;
+}
+.top-section {
+  background-color: #979797;
+  padding: 20px;
+}
+.bottom-section {
+  background-color: #4d4d4d;
+  height: 80vh;
+  padding: 20px;
+}
