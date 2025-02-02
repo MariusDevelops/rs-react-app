@@ -36,7 +36,7 @@ class Home extends Component<Record<string, never>, HomeState> {
       const storedTerm = localStorage.getItem('savedSearchTerm');
       if (storedTerm) {
         this.setState({ savedSearchTerm: storedTerm }, () => {
-          this.fetchAllItems();
+          this.performSearch();
         });
       } else {
         this.fetchAllItems();
